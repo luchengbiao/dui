@@ -764,6 +764,15 @@ public:
 	Control* FindControl(const std::wstring& strName) const;
 
 	/**
+	* @brief 根据控件类型以及名称查找控件
+	* @template param[int] ControlType 控件类型
+	* @param[in] strName 控件名称
+	* @return 返回控件指针
+	*/
+	template<typename ControlType>
+	ControlType* FindControlWithType(const std::wstring& strName) const;
+
+	/**
 	 * @brief 根据坐标查找子控件
 	 * @param[in] pParent 要搜索的控件
 	 * @param[in] pt 要查找的坐标
@@ -973,6 +982,12 @@ protected:
 
 	bool m_bFakeModal = false;
 };
+
+template<typename ControlType>
+ControlType* Window::FindControlWithType(const std::wstring& strName) const
+{
+	return dynamic_cast<ControlType*>(FindControl(strName));
+}
 
 } // namespace ui
 

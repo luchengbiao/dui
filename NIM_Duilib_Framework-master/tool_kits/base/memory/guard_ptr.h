@@ -16,27 +16,19 @@
 
 namespace nbase
 {
-	template<typename T, typename = std::enable_if_t<std::is_base_of<SupportWeakCallback, T>::value>>
+	template<typename T, typename SupportGuardPtrT = SupportWeakCallback, typename = std::enable_if_t<std::is_base_of<SupportGuardPtrT, T>::value>>
 	class BASE_EXPORT GuardPtr
 	{
-		typedef typename SupportWeakCallback::_TyWeakFlag WeakFlag;
+	public:
+		typedef decltype(std::declval<SupportGuardPtrT>().GetWeakFlag()) WeakFlag;
 
 	public:
 		inline GuardPtr() {}
-		inline GuardPtr(T* ptr)
-		: ptr_(ptr)
-		, weak_flag_(ptr ? ptr->GetWeakFlag() : WeakFlag()) 
-		{}
+		inline GuardPtr(T* ptr) : ptr_(ptr) , weak_flag_(ptr ? ptr->GetWeakFlag() : WeakFlag()) {}
 		inline ~GuardPtr() {}
 		// compiler-generated copy/move ctor/assignment operators are fine!
 
-		inline GuardPtr& operator=(T* ptr)
-		{
-			ptr_ = ptr;
-			weak_flag_ = ptr ? ptr->GetWeakFlag() : WeakFlag();
-
-			return (*this);
-		}
+		inline GuardPtr& operator=(T* ptr) { this->Reset(ptr); return (*this); }
 
 		inline bool IsNull() const { return (!ptr_ || weak_flag_.expired()); }
 
@@ -45,21 +37,8 @@ namespace nbase
 		inline T& operator*() const { return *Get(); }
 		inline operator T*() const { return Get(); }
 
-		inline void Clear()
-		{
-			ptr_ = nullptr;
-			weak_flag_.reset();
-		}
-
-		inline void Swap(GuardPtr& guard_ptr)
-		{
-			if (this != &guard_ptr)
-			{
-				GuardPtr tmp(guard_ptr);
-				guard_ptr = *this;
-				*this = tmp;
-			}
-		}
+		inline void Reset() { this->Reset(nullptr); }
+		inline void Reset(T* ptr) { ptr_ = ptr; weak_flag_ = ptr ? ptr->GetWeakFlag() : WeakFlag(); }
 
 	private:
 		T* ptr_{ nullptr };

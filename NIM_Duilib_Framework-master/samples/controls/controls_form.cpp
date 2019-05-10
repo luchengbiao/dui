@@ -105,9 +105,9 @@ void ControlForm::InitWindow()
 	nbase::ThreadManager::PostRepeatedTask(kThreadGlobalMisc, ToWeakCallback(repeat_task), nbase::TimeDelta::FromMilliseconds(200));
 
 
-	nbase::GuardPtr<ui::Button> min_btn_guard_ptr(dynamic_cast<ui::Button*>(FindControl(L"minbtn")));
-	nbase::GuardPtr<ui::Button> max_btn_guard_ptr(dynamic_cast<ui::Button*>(FindControl(L"maxbtn")));
-	nbase::GuardPtr<ui::Button> close_btn_guard_ptr(dynamic_cast<ui::Button*>(FindControl(L"closebtn")));
+	nbase::GuardPtr<ui::Button> min_btn_guard_ptr(FindControlWithType<ui::Button>(L"minbtn"));
+	nbase::GuardPtr<ui::Button> max_btn_guard_ptr(FindControlWithType<ui::Button>(L"maxbtn"));
+	nbase::GuardPtr<ui::Control> close_btn_guard_ptr(FindControlWithType<ui::Button>(L"closebtn"));
 	
 	/* Show settings menu */
 	ui::Button* settings = dynamic_cast<ui::Button*>(FindControl(L"settings"));
