@@ -12,6 +12,7 @@ ControlForm::ControlForm()
 
 ControlForm::~ControlForm()
 {
+	OutputDebugStringA(__FUNCTION__);
 }
 
 std::wstring ControlForm::GetSkinFolder()
@@ -95,15 +96,25 @@ void ControlForm::InitWindow()
 	// Using ToWeakCallback to protect closure when if [ControlForm] was destoryed
 	nbase::ThreadManager::PostTask(kThreadGlobalMisc, ToWeakCallback(closure)); // or Post2GlobalMisc(ToWeakCallback(closure));
 
+	nbase::GuardPtr<ControlForm> guard_this(this);
+
 	/* Post repeat task to update progress value 200 milliseconds once */
-	StdClosure repeat_task = [this]() {
+	StdClosure repeat_task = [=]() {
+		::Sleep(5000); // test data race/not thread-safe of ToWeakCallback/SupportWeakCallback
+
 		auto timestamp = shared::tools::GenerateTimeStamp();
 		int64_t timestamp_num = 0;
 		nbase::StringToInt64(timestamp, &timestamp_num);
-		nbase::ThreadManager::PostTask(kThreadUI, nbase::Bind(&ControlForm::OnProgressValueChagned, this, timestamp_num % 100));
+
+		//nbase::ThreadManager::PostTask(kThreadUI, nbase::Bind(&ControlForm::OnProgressValueChagned, this, timestamp_num % 100)); // will access this
+		nbase::ThreadManager::PostTask(kThreadUI, [=]{
+			if (guard_this)
+			{
+				guard_this->OnProgressValueChagned(timestamp_num % 100);
+			}
+		});
 	};
 	nbase::ThreadManager::PostRepeatedTask(kThreadGlobalMisc, ToWeakCallback(repeat_task), nbase::TimeDelta::FromMilliseconds(200));
-
 
 	nbase::GuardPtr<ui::Button> min_btn_guard_ptr(FindControlWithType<ui::Button>(L"minbtn"));
 	nbase::GuardPtr<ui::Button> max_btn_guard_ptr(FindControlWithType<ui::Button>(L"maxbtn"));

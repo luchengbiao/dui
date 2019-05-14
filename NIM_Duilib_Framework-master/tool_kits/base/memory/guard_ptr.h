@@ -11,20 +11,34 @@
 #define BASE_MEMORY_GUARD_PTR_H_
 #pragma once
 
+#include <assert.h>
+#include <thread>
 #include <type_traits>
 #include "base/callback/callback.h"
 
 namespace nbase
 {
+#define SUPPORT_HOST_THREAD_ID 0
+
 	template<typename T, typename SupportGuardPtrT = SupportWeakCallback, typename = std::enable_if_t<std::is_base_of<SupportGuardPtrT, T>::value>>
 	class BASE_EXPORT GuardPtr
 	{
 	public:
 		typedef decltype(std::declval<SupportGuardPtrT>().GetWeakFlag()) WeakFlag;
 
+#if SUPPORT_HOST_THREAD_ID 
+		typedef decltype(std::declval<SupportGuardPtrT>().HostThreadId()) ThreadId;
+#endif
+
 	public:
 		inline GuardPtr() {}
-		inline GuardPtr(T* ptr) : ptr_(ptr) , weak_flag_(ptr ? ptr->GetWeakFlag() : WeakFlag()) {}
+		inline GuardPtr(T* ptr) 
+		: ptr_(ptr) 
+		, weak_flag_(ptr ? ptr->GetWeakFlag() : WeakFlag())
+#if SUPPORT_HOST_THREAD_ID 
+		, host_thread_id_(ptr ? ptr->HostThreadId() : std::thread::id())
+#endif
+		{}
 		inline ~GuardPtr() {}
 		// compiler-generated copy/move ctor/assignment operators are fine!
 
@@ -38,12 +52,54 @@ namespace nbase
 		inline operator T*() const { return Get(); }
 
 		inline void Reset() { this->Reset(nullptr); }
-		inline void Reset(T* ptr) { ptr_ = ptr; weak_flag_ = ptr ? ptr->GetWeakFlag() : WeakFlag(); }
+		inline void Reset(T* ptr) 
+		{ 
+			ptr_ = ptr; 
+			weak_flag_ = ptr ? ptr->GetWeakFlag() : WeakFlag(); 
+#if SUPPORT_HOST_THREAD_ID 
+			host_thread_id_ = ptr ? ptr->HostThreadId() : std::thread::id();
+#endif
+		}
+
+#if SUPPORT_HOST_THREAD_ID 
+		ThreadId HostThreadId() const { return host_thread_id_; }
+
+		void PerformClosureOnHostThread(const std::function<void()>& closure) const
+		{
+			assert(closure);
+
+			if (host_thread_id_ != ThreadId())
+			{
+				nbase::PerformClosureOnThread(host_thread_id_, closure);
+			}
+		}
+
+		void PerformClosureOnHostThreadCarefully(const std::function<void()>& closure) const
+		{
+			assert(closure);
+
+			if (host_thread_id_ != ThreadId())
+			{
+				GuardPtr guard = *this;
+				nbase::PerformClosureOnThread(host_thread_id_, [=]{
+					if (guard) // guard still valid
+					{
+						closure();
+					}
+				});
+			}
+		}
+#endif
 
 	private:
 		T* ptr_{ nullptr };
 		WeakFlag weak_flag_;
+#if SUPPORT_HOST_THREAD_ID 
+		ThreadId host_thread_id_;
+#endif
 	};
+
+#undef SUPPORT_HOST_THREAD_ID
 }
 
 
