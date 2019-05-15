@@ -37,9 +37,10 @@ bool ThreadMap::RegisterThread(int self_identifier)
 		return false;
 
 	AUTO_MAP_LOCK()
-	std::pair<std::map<int, FrameworkThread*>::iterator, bool> pr =
-		ThreadMap::GetInstance()->threads_.insert(
-			std::make_pair(self_identifier, tls->self));
+	std::pair<Identifier2ThreadHash::iterator, bool> pr =
+	ThreadMap::GetInstance()->threads_.emplace(self_identifier, tls->self);
+	ThreadMap::GetInstance()->thread_id_2_threads_.emplace(Thread::CurrentId(), tls->self);
+
 	if (!pr.second)
 	{
 		if (pr.first->second != tls->self)
@@ -71,11 +72,14 @@ bool ThreadMap::UnregisterThread()
 	if (--tls->managed == 0)
 	{
 		AUTO_MAP_LOCK()
-		std::map<int, FrameworkThread*>::iterator iter = GetInstance()->threads_.find(tls->managed_thread_id);
+		Identifier2ThreadHash::iterator iter = GetInstance()->threads_.find(tls->managed_thread_id);
 		if (iter != GetInstance()->threads_.end())
 			GetInstance()->threads_.erase(iter);
 		else {}
 			//DCHECK(false);	// logic error, we should not come here
+
+		ThreadMap::GetInstance()->thread_id_2_threads_.erase(Thread::CurrentId());
+
 		tls->managed_thread_id = -1;
 	}
 
@@ -85,18 +89,25 @@ bool ThreadMap::UnregisterThread()
 // no lock
 FrameworkThread* ThreadMap::QueryThreadInternal(int identifier) const
 {
-	std::map<int, FrameworkThread*>::iterator iter
+	Identifier2ThreadHash::iterator iter
 		= GetInstance()->threads_.find(identifier);
 	if (iter == GetInstance()->threads_.end())
 		return NULL;
 	return iter->second;
 }
 
+FrameworkThread* ThreadMap::QueryThreadInternalByThreadId(ThreadId thread_id) const
+{
+	ThreadId2ThreadHash::iterator iter = GetInstance()->thread_id_2_threads_.find(thread_id);
+
+	return (iter == GetInstance()->thread_id_2_threads_.end()) ? NULL : iter->second;
+}
+
 int ThreadMap::QueryThreadId(const FrameworkThread *thread)
 {
 	AQUIRE_ACCESS()
 	AUTO_MAP_LOCK()
-	std::map<int, FrameworkThread*>::iterator iter;
+	Identifier2ThreadHash::iterator iter;
 	for (iter = GetInstance()->threads_.begin();
 		iter != GetInstance()->threads_.end(); iter++) {
 		if (iter->second == thread)
@@ -108,6 +119,17 @@ int ThreadMap::QueryThreadId(const FrameworkThread *thread)
 std::shared_ptr<MessageLoopProxy> ThreadMap::GetMessageLoop(int identifier) const
 {
 	FrameworkThread *thread = QueryThreadInternal(identifier);
+	if (thread == NULL)
+		return NULL;
+	MessageLoop *message_loop = thread->message_loop();
+	if (message_loop == NULL)
+		return NULL;
+	return message_loop->message_loop_proxy();
+}
+
+std::shared_ptr<MessageLoopProxy> ThreadMap::GetMessageLoopByThreadId(ThreadId thread_id) const
+{
+	FrameworkThread *thread = QueryThreadInternalByThreadId(thread_id);
 	if (thread == NULL)
 		return NULL;
 	MessageLoop *message_loop = thread->message_loop();
@@ -215,6 +237,26 @@ bool ThreadManager::PostNonNestableDelayedTask(int identifier, const StdClosure 
 	if (message_loop == NULL)
 		return false;
 	message_loop->PostNonNestableDelayedTask(task, delay);
+	return true;
+}
+
+bool ThreadManager::PerformTaskOnThread(ThreadId thread_id, const StdClosure &task)
+{
+	assert(task);
+
+	if (Thread::CurrentId() == thread_id)
+	{
+		task();
+	}
+	else
+	{
+		std::shared_ptr<MessageLoopProxy> message_loop =
+			ThreadMap::GetInstance()->GetMessageLoopByThreadId(thread_id);
+		if (message_loop == NULL)
+			return false;
+		message_loop->PostTask(task);
+	}
+
 	return true;
 }
 

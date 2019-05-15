@@ -100,18 +100,19 @@ void ControlForm::InitWindow()
 
 	/* Post repeat task to update progress value 200 milliseconds once */
 	StdClosure repeat_task = [=]() {
-		::Sleep(5000); // test data race/not thread-safe of ToWeakCallback/SupportWeakCallback
+		//::Sleep(5000); // test data race/not thread-safe of ToWeakCallback/SupportWeakCallback
 
 		auto timestamp = shared::tools::GenerateTimeStamp();
 		int64_t timestamp_num = 0;
 		nbase::StringToInt64(timestamp, &timestamp_num);
 
 		//nbase::ThreadManager::PostTask(kThreadUI, nbase::Bind(&ControlForm::OnProgressValueChagned, this, timestamp_num % 100)); // will access this
-		nbase::ThreadManager::PostTask(kThreadUI, [=]{
-			if (guard_this)
-			{
-				guard_this->OnProgressValueChagned(timestamp_num % 100);
-			}
+		//guard_this.TryToPerformClosureOnHostThread([=]{
+		//	this->OnProgressValueChagned(timestamp_num % 100);
+		//});
+
+		guard_this.TryToPerformClosureOnThread(kThreadUI, [=]{
+				this->OnProgressValueChagned(timestamp_num % 100);
 		});
 	};
 	nbase::ThreadManager::PostRepeatedTask(kThreadGlobalMisc, ToWeakCallback(repeat_task), nbase::TimeDelta::FromMilliseconds(200));
@@ -121,7 +122,7 @@ void ControlForm::InitWindow()
 	nbase::GuardPtr<ui::Control> close_btn_guard_ptr(FindControlWithType<ui::Button>(L"closebtn"));
 	
 	/* Show settings menu */
-	ui::Button* settings = dynamic_cast<ui::Button*>(FindControl(L"settings"));
+	ui::Button* settings = FindControlWithType<ui::Button>(L"settings");
 	settings->AttachClick([=](ui::EventArgs* args) {
 		RECT rect = args->pSender->GetPos();
 		ui::CPoint point;
@@ -148,9 +149,22 @@ void ControlForm::InitWindow()
 		{
 			close_btn_guard_ptr->GetParent()->Remove(close_btn_guard_ptr);
 		}
+		else
+		{
+			settings->GetParent()->Remove(settings);
+		}
 
 		return true;
 	});
+
+	nbase::GuardPtr<ui::Button> guard_btn_setting(settings);
+
+	StdClosure blink_task = [=]() {
+		guard_btn_setting.TryToPerformClosureOnThread(kThreadUI, [=]{
+			settings->SetVisible(!settings->IsVisible());
+		});
+	};
+	nbase::ThreadManager::PostRepeatedTask(kThreadGlobalMisc, ToWeakCallback(blink_task), nbase::TimeDelta::FromMilliseconds(200));
 }
 
 LRESULT ControlForm::OnClose(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)

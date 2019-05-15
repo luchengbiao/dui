@@ -3,7 +3,7 @@
 #ifndef BASE_THREAD_THREAD_MANAGER_H_
 #define BASE_THREAD_THREAD_MANAGER_H_
 
-#include <map>
+#include <unordered_map>
 #include <memory>
 #include "base/base_export.h"
 #include "base/thread/framework_thread.h"
@@ -14,6 +14,9 @@ namespace nbase
 class MessageLoop;
 class MessageLoopProxy;
 
+typedef std::unordered_map<int, FrameworkThread*> Identifier2ThreadHash;
+typedef std::unordered_map<ThreadId, FrameworkThread*> ThreadId2ThreadHash;
+
 class ThreadMap
 {
 public:
@@ -22,14 +25,20 @@ public:
 
 	bool RegisterThread(int self_identifier);
 	bool UnregisterThread();
+
 	int QueryThreadId(const FrameworkThread *thread);
+
 	std::shared_ptr<MessageLoopProxy> GetMessageLoop(int identifier) const;
+	std::shared_ptr<MessageLoopProxy> GetMessageLoopByThreadId(ThreadId thread_id) const;
+
 	FrameworkThread* QueryThreadInternal(int identifier) const;
+	FrameworkThread* QueryThreadInternalByThreadId(ThreadId thread_id) const;
 
 private:
 	ThreadMap() { }
 	NLock lock_;
-	std::map<int, FrameworkThread*> threads_;
+	Identifier2ThreadHash threads_;
+	ThreadId2ThreadHash thread_id_2_threads_;
 };
 
 // 使用ThreadManager可以极大地方便线程间通信
@@ -66,6 +75,8 @@ public:
 
 	static bool PostNonNestableDelayedTask(const StdClosure &task, TimeDelta delay);
 	static bool PostNonNestableDelayedTask(int identifier, const StdClosure &task, TimeDelta delay);
+
+	static bool PerformTaskOnThread(ThreadId thread_id, const StdClosure &task);
 
 	template<typename T1, typename T2>
 	static bool Await(int identifier, const std::function<T1> &task, const std::function<T2> &reply)
