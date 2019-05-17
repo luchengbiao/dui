@@ -86,6 +86,7 @@
 #include "Utils/TimerManager.h"
 #include "Utils/OnScreenKeyboardManager.h"
 #include "Utils/Shadow.h"
+#include "Utils/UIHelper.h"
 
 #include "Animation/AnimationPlayer.h"
 #include "Animation/AnimationManager.h"
@@ -131,4 +132,23 @@
 
 #include "Control/RichEdit.h"
 #include "Control/VirtualListBox.h"
+
+#include "Action/Macros.h"
+#include "Action/Base/Action.h"
+#include "Action/Adaptor/ControlAdaptor.h"
+#include "Action/TweenFunction/TweenFunction.h"
+#include "Action/InstantActions/InstantAction.h"
+#include "Action/InstantActions/CallFunc.h"
+#include "Action/InstantActions/Hide.h"
+#include "Action/InstantActions/Place.h"
+#include "Action/InstantActions/RemoveSelf.h"
+#include "Action/InstantActions/Show.h"
+#include "Action/IntervalActions/IntervalAction.h"
+#include "Action/IntervalActions/Delay.h"
+#include "Action/IntervalActions/EaseAction.h"
+#include "Action/IntervalActions/Move.h"
+#include "Action/IntervalActions/Sequence.h"
+#include "Action/IntervalActions/Size.h"
+#include "Action/Manager/ActionManager.h"
+
 

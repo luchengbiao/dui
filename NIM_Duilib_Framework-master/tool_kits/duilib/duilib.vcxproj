@@ -308,6 +308,22 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Action\Adaptor\ControlAdaptor.cpp" />
+    <ClCompile Include="Action\Base\Action.cpp" />
+    <ClCompile Include="Action\InstantActions\CallFunc.cpp" />
+    <ClCompile Include="Action\InstantActions\Hide.cpp" />
+    <ClCompile Include="Action\InstantActions\Place.cpp" />
+    <ClCompile Include="Action\InstantActions\RemoveSelf.cpp" />
+    <ClCompile Include="Action\InstantActions\InstantAction.cpp" />
+    <ClCompile Include="Action\InstantActions\Show.cpp" />
+    <ClCompile Include="Action\IntervalActions\Delay.cpp" />
+    <ClCompile Include="Action\IntervalActions\EaseAction.cpp" />
+    <ClCompile Include="Action\IntervalActions\IntervalAction.cpp" />
+    <ClCompile Include="Action\IntervalActions\Move.cpp" />
+    <ClCompile Include="Action\IntervalActions\Sequence.cpp" />
+    <ClCompile Include="Action\IntervalActions\Size.cpp" />
+    <ClCompile Include="Action\TweenFunction\TweenFunction.cpp" />
+    <ClCompile Include="Action\Manager\ActionManager.cpp" />
     <ClCompile Include="Animation\AnimationManager.cpp" />
     <ClCompile Include="Animation\AnimationPlayer.cpp" />
     <ClCompile Include="Box\ChildBox.cpp">
@@ -338,6 +354,7 @@
     </ClCompile>
     <ClCompile Include="UIlib.cpp" />
     <ClCompile Include="Utils\ApiWrapper.cpp" />
+    <ClCompile Include="Utils\UIHelper.cpp" />
     <ClCompile Include="Utils\DpiManager.cpp" />
     <ClCompile Include="Utils\MultiLangSupport.cpp" />
     <ClCompile Include="Utils\OnScreenKeyboardManager.cpp" />
@@ -361,6 +378,23 @@
     <ClCompile Include="Utils\WinImplBase.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Action\Adaptor\ControlAdaptor.h" />
+    <ClInclude Include="Action\Base\Action.h" />
+    <ClInclude Include="Action\InstantActions\CallFunc.h" />
+    <ClInclude Include="Action\InstantActions\Hide.h" />
+    <ClInclude Include="Action\InstantActions\Place.h" />
+    <ClInclude Include="Action\InstantActions\RemoveSelf.h" />
+    <ClInclude Include="Action\InstantActions\InstantAction.h" />
+    <ClInclude Include="Action\InstantActions\Show.h" />
+    <ClInclude Include="Action\IntervalActions\Delay.h" />
+    <ClInclude Include="Action\IntervalActions\EaseAction.h" />
+    <ClInclude Include="Action\IntervalActions\IntervalAction.h" />
+    <ClInclude Include="Action\IntervalActions\Move.h" />
+    <ClInclude Include="Action\IntervalActions\Sequence.h" />
+    <ClInclude Include="Action\IntervalActions\Size.h" />
+    <ClInclude Include="Action\TweenFunction\TweenFunction.h" />
+    <ClInclude Include="Action\Macros.h" />
+    <ClInclude Include="Action\Manager\ActionManager.h" />
     <ClInclude Include="Animation\AnimationManager.h" />
     <ClInclude Include="Animation\AnimationPlayer.h" />
     <ClInclude Include="Box\ChildBox.h" />
@@ -387,6 +421,7 @@
     <ClInclude Include="StdAfx.h" />
     <ClInclude Include="UIlib.h" />
     <ClInclude Include="Utils\ApiWrapper.h" />
+    <ClInclude Include="Utils\UIHelper.h" />
     <ClInclude Include="Utils\DpiManager.h" />
     <ClInclude Include="Utils\Macros.h" />
     <ClInclude Include="Utils\MultiLangSupport.h" />

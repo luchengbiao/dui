@@ -179,6 +179,57 @@
     <ClCompile Include="Utils\UnZip.cpp">
       <Filter>Source Files\Utils</Filter>
     </ClCompile>
+    <ClCompile Include="Action\Adaptor\ControlAdaptor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Action\Manager\ActionManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Action\InstantActions\InstantAction.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Action\InstantActions\CallFunc.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Action\InstantActions\RemoveSelf.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Action\IntervalActions\IntervalAction.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Action\IntervalActions\Move.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Utils\UIHelper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Action\TweenFunction\TweenFunction.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Action\IntervalActions\EaseAction.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Action\IntervalActions\Sequence.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Action\IntervalActions\Size.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Action\IntervalActions\Delay.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Action\InstantActions\Show.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Action\InstantActions\Hide.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Action\InstantActions\Place.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Action\Base\Action.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="StdAfx.h">
@@ -348,6 +399,60 @@
     </ClInclude>
     <ClInclude Include="Utils\UnZip.h">
       <Filter>Header Files\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Action\Macros.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Action\Adaptor\ControlAdaptor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Action\Manager\ActionManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Action\Base\Action.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Action\InstantActions\InstantAction.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Action\InstantActions\CallFunc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Action\InstantActions\RemoveSelf.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Action\IntervalActions\IntervalAction.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Action\IntervalActions\Move.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils\UIHelper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Action\TweenFunction\TweenFunction.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Action\IntervalActions\EaseAction.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Action\IntervalActions\Sequence.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Action\IntervalActions\Size.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Action\IntervalActions\Delay.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Action\InstantActions\Show.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Action\InstantActions\Hide.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Action\InstantActions\Place.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

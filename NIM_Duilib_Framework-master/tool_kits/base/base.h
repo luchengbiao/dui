@@ -14,6 +14,7 @@
 #include "memory/blockbuffer.h"
 #include "memory/deleter.h"
 #include "memory/guard_ptr.h"
+#include "memory/objectcounter.h"
 #include "memory/singleton.h"
 #include "memory/lazy_instance.h"
 #include "network/network_util.h"

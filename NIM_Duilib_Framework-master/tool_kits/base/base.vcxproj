@@ -46,6 +46,7 @@
     <ClInclude Include="memory\guard_ptr.h" />
     <ClInclude Include="memory\lazy_instance.h" />
     <ClInclude Include="memory\deleter.h" />
+    <ClInclude Include="memory\objectcounter.h" />
     <ClInclude Include="memory\singleton.h" />
     <ClInclude Include="network\network_util.h" />
     <ClInclude Include="network\nio_base.h" />

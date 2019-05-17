@@ -26,6 +26,10 @@ void MainThread::Init()
 {
 	nbase::ThreadManager::RegisterThread(kThreadUI);
 
+	// 启动杂事处理线程
+	misc_thread_.reset(new MiscThread(kThreadGlobalMisc, "Global Misc Thread"));
+	misc_thread_->Start();
+
 	// 获取资源路径，初始化全局参数
 	std::wstring theme_dir = QPath::GetAppPath();
 #ifdef _DEBUG

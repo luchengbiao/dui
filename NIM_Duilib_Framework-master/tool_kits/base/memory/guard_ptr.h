@@ -1,9 +1,9 @@
 /**
-* There are some types of raw pointers which we can not use such smart pointer as std::shared_ptr to protect/manage,
+* There are some types of raw pointers which we can not protect/manage with such smart pointer as std::shared_ptr,
 * such as pointers to UI/Widget objects which are generally already managed(especially destroying) by a corresponding framework,
 * so here we implement another smart pointer to protect/guard such pointers, mainly detecting whether the pointed object was already destroyed/deleted.
-* It is guard_ptr based on SupportWeakCallback, inspired by Qt::QPointer.
-* NOTICE: the guard_ptr and SupportWeakCallback are both NOT THREAD-SAFE,
+* It is GuardPtr based on SupportWeakCallback, inspired by Qt::QPointer.
+* NOTICE: the GuardPtr and SupportWeakCallback are both NOT THREAD-SAFE, the pointed/guarded object shall be created and destroyed on a same thread.
 * so when wanting to protect/manage some pointers thread-safely, consider std::shared_ptr.
 */
 
@@ -21,7 +21,9 @@ namespace nbase
 {
 #define SUPPORT_HOST_THREAD 0
 
-	template<typename T, typename SupportGuardPtrT = SupportWeakCallback, typename = std::enable_if_t<std::is_base_of<SupportGuardPtrT, T>::value>>
+	typedef SupportWeakCallback SupportGuardPtr;
+
+	template<typename T, typename SupportGuardPtrT = SupportGuardPtr, typename = std::enable_if_t<std::is_base_of<SupportGuardPtrT, T>::value>>
 	class BASE_EXPORT GuardPtr
 	{
 	public:
@@ -61,6 +63,30 @@ namespace nbase
 #endif
 		}
 
+		void PerformClosureOnThread(int thread_identifier, const std::function<void()>& closure) const
+		{
+			assert(closure);
+
+			ThreadManager::PostTask(thread_identifier, closure);
+		}
+
+		/**
+		* Because GuardPtr is not thread-safe, 
+		* the thread on which the closure will be performed should be the one on which the object pointed by ptr_ was created and will be destroyed.
+		*/
+		void TryToPerformClosureOnThread(int thread_identifier, const std::function<void()>& closure) const
+		{
+			assert(closure);
+
+			GuardPtr guard(*this);
+			ThreadManager::PostTask(thread_identifier, [=]{
+				if (!guard.IsNull()) // guard is not null, meaning the ptr_ guarded is still valid, then we can do something on it: ptr_->XXX, *ptr_ etc.
+				{
+					closure();
+				}
+			});
+		}
+
 #if SUPPORT_HOST_THREAD
 		ThreadId HostThreadId() const { return host_thread_id_; }
 
@@ -80,9 +106,9 @@ namespace nbase
 
 			if (host_thread_id_ != ThreadId{})
 			{
-				GuardPtr guard = *this;
+				GuardPtr guard(*this);
 				ThreadManager::PerformTaskOnThread(host_thread_id_, [=]{
-					if (!guard.IsNull()) // not null, meaning the ptr_ guarded is still valid!
+					if (!guard.IsNull()) // guard is not null, meaning the ptr_ guarded is still valid, then we can do something on it: ptr_->XXX, *ptr_ etc.
 					{
 						closure();
 					}
@@ -90,26 +116,6 @@ namespace nbase
 			}
 		}
 #endif
-
-		void PerformClosureOnThread(int thread_identifier, const std::function<void()>& closure) const
-		{
-			assert(closure);
-
-			ThreadManager::PostTask(thread_identifier, closure);
-		}
-
-		void TryToPerformClosureOnThread(int thread_identifier, const std::function<void()>& closure) const
-		{
-			assert(closure);
-
-			GuardPtr guard = *this;
-			ThreadManager::PostTask(thread_identifier, [=]{
-				if (!guard.IsNull()) // not null, meaning the ptr_ guarded is still valid!
-				{
-					closure();
-				}
-			});
-		}
 
 	private:
 		T* ptr_{ nullptr };

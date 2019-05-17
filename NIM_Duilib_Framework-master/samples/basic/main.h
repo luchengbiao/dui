@@ -26,4 +26,7 @@ private:
 	* @return void	无返回值
 	*/
 	virtual void Cleanup() override;
+
+private:
+	std::unique_ptr<MiscThread>	misc_thread_;	// 专门处理杂事的线程
 };

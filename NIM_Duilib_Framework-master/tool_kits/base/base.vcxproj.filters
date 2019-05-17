@@ -247,6 +247,9 @@
     <ClInclude Include="memory\guard_ptr.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="memory\objectcounter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="file\file_util.cpp">
